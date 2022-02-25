@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Times+New+Roman|Courier+New" rel="stylesheet">
+
+    <title>Swamp</title>
+</head>
+
+<body>
+    <form id="form">
+        <label for="inputText">Įveskite tekstą</label>
+        <input id="inputText" name="text" value="">
+        <input type="submit" value="Generuoti haiku">
+    </form>
+    <div id="outputText"></div>
+    <img id="image" src="">
+</body>
+
+<script>
+    window.addEventListener('load', function () {
+        const form = document.getElementById('form');
+        const input = document.getElementById('inputText');
+        const output = document.getElementById('outputText');
+        const fonts = ['Open Sans', 'Times New Roman', 'Courier New'];
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min) + min);
+        }
+
+        function getData() {
+            console.log(input.value);
+            fetch('https://httpbin.org/post', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: input.value + ' | ' + input.value })
+            })
+                .then(res => res.json())
+                .then(res => {
+                    output.style.fontSize = getRandomInt(30, 60).toString() + 'px';
+                    const baseColor = Math.floor(Math.random() * 16777215)
+
+                    const raw_text = res.data.substring(9, res.data.length - 2)
+                    const words = raw_text.split(' | ');
+                    let text = ''
+                    for (const word of words) {
+                        for (const char of word) {
+                            fontFamily = fonts[getRandomInt(0, fonts.length)];
+                            fontWeight = (getRandomInt(1, 8) * 100).toString();
+                            offset = getRandomInt(-100, 100)
+                            color = '#' + (baseColor + offset).toString(16).padStart(6, '0');
+                            text += '<span style="font-family:' + "'" + fontFamily + "';" +
+                                'font-weight:' + fontWeight +
+                                'color:' + color +
+                                '">' + char + '</span>'
+                        }
+                        text += '</br>';
+                    }
+                    output.innerHTML = text;
+                });
+        }
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            getData();
+        });
+    });
+</script>
+
+</html>
